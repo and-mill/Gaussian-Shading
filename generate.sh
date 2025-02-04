@@ -1,0 +1,4 @@
+tmux send-keys -t gs_0 "CUDA_VISIBLE_DEVICES=0 python generate.py    --no_watermark                                                    --output_path './output/0/'   "   C-m && \
+tmux send-keys -t gs_1 "CUDA_VISIBLE_DEVICES=1 python generate.py                       --fix_message     --fix_key     --fix_nonce    --output_path './output/1/'   "   C-m && \
+tmux send-keys -t gs_2 "CUDA_VISIBLE_DEVICES=2 python generate.py                       --fix_message     --fix_key                    --output_path './output/2/'   "   C-m && \
+tmux send-keys -t gs_3 "CUDA_VISIBLE_DEVICES=3 python generate.py                                         --fix_key     --fix_nonce    --output_path './output/3/'   "   C-m

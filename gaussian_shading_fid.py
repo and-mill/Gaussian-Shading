@@ -11,6 +11,7 @@ from optim_utils import *
 from io_utils import *
 from image_utils import *
 from pytorch_fid.fid_score import *
+from watermark import *
 
 
 def main(args):
@@ -43,9 +44,12 @@ def main(args):
     os.makedirs(w_dir, exist_ok=True)
     os.makedirs(args.output_path, exist_ok=True)
 
+    
     for i in tqdm(range(0, args.num)):
         seed = i + args.gen_seed
         current_prompt = dataset[i][prompt_key]
+
+        #print(f'Generating image {i} with prompt: {current_prompt}')
 
         set_random_seed(seed)
         init_latents_w = watermark.create_watermark_and_return_w()
@@ -95,7 +99,11 @@ if __name__ == '__main__':
     parser.add_argument('--gt_folder', default='./fid_outputs/coco/ground_truth')
     parser.add_argument('--output_path', default='./output/')
     parser.add_argument('--model_path', default='stabilityai/stable-diffusion-2-1-base')
-    parser.add_argument('--chacha', action='store_true', help='chacha20 for cipher')
+    #parser.add_argument('--chacha', action='store_true', help='chacha20 for cipher')
+    parser.add_argument('--no_chacha', dest="chacha", action='store_false', default=True, help='chacha20 for cipher')
+
+    parser.add_argument('--fpr', default=1e-6, type=float)
+    parser.add_argument('--user_number', default=100 * 1000, type=float)
 
     args = parser.parse_args()
 

@@ -31,9 +31,11 @@ class Gaussian_Shading_chacha:
             if fpr_bits <= fpr and self.tau_bits is None:
                 self.tau_bits = i / self.marklength
 
-    def stream_key_encrypt(self, sd):
-        self.key = get_random_bytes(32)
-        self.nonce = get_random_bytes(12)
+    def stream_key_encrypt(self, sd,
+                           key=None, nonce=None  # ADDED
+                           ):
+        self.key = get_random_bytes(32) if key is None else key
+        self.nonce = get_random_bytes(12) if nonce is None else nonce
         cipher = ChaCha20.new(key=self.key, nonce=self.nonce)
         m_byte = cipher.encrypt(np.packbits(sd).tobytes())
         m_bit = np.unpackbits(np.frombuffer(m_byte, dtype=np.uint8))
@@ -56,6 +58,19 @@ class Gaussian_Shading_chacha:
         m = self.stream_key_encrypt(sd.flatten().cpu().numpy())
         w = self.truncSampling(m)
         return w
+    
+    # ADDED
+    def create_watermark_and_return_all(self, message=None, key=None, nonce=None):
+        
+        if message is None:
+            self.watermark = torch.randint(0, 2, [1, 4 // self.ch, 64 // self.hw, 64 // self.hw]).cuda()
+        else:
+            self.watermark = message
+
+        sd = self.watermark.repeat(1,self.ch,self.hw,self.hw)
+        m = self.stream_key_encrypt(sd.flatten().cpu().numpy(), key=key, nonce=nonce)
+        w = self.truncSampling(m)
+        return w, self.key.hex(), self.nonce.hex(), "".join([str(e) for e in self.watermark.flatten().cpu().numpy().tolist()]),
 
     def stream_key_decrypt(self, reversed_m):
         cipher = ChaCha20.new(key=self.key, nonce=self.nonce)
