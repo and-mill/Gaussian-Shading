@@ -46,6 +46,11 @@ def main(args):
     os.makedirs(w_dir, exist_ok=True)
     os.makedirs(args.output_path, exist_ok=True)
 
+    # retrieve args
+    message = torch.randint(0, 2, [1, 4 // watermark.ch, 64 // watermark.hw, 64 // watermark.hw]).cuda() if args.fix_message else None
+    key = get_random_bytes(32) if args.fix_key else None
+    nonce = get_random_bytes(12) if args.fix_nonce else None
+
     # main loop
     rows = []
     for i in tqdm(range(0, args.num)):
@@ -66,11 +71,6 @@ def main(args):
         # wm image name and path
         wm_image_file_name = image_files[i]['file_name']
         wm_image_path = f'{w_dir}/{wm_image_file_name}'
-
-        # retrieve args
-        message = torch.randint(0, 2, [1, 4 // watermark.ch, 64 // watermark.hw, 64 // watermark.hw]).cuda() if args.fix_message else None
-        key = get_random_bytes(32) if args.fix_key else None
-        nonce = get_random_bytes(12) if args.fix_nonce else None
 
         # get latent
         set_random_seed(seed)
